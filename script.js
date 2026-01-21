@@ -3,7 +3,7 @@
 // ===========================================
 
 window.resetDeck = function () {
-  window.deck = window.__DECK_SNAPSHOT__.map(card => ({ ...card }));
+  window.deck = window.__DECK_SNAPSHOT__.map((card) => ({ ...card }));
 };
 
 // close intre screen
@@ -11,21 +11,49 @@ document.getElementById("closeIntro").addEventListener("click", () => {
   const intro = document.getElementById("intro");
   intro.style.opacity = 0;
   intro.style.transition = "opacity 0.4s ease";
-  setTimeout(() => intro.style.display = "none", 400);
+  setTimeout(() => (intro.style.display = "none"), 400);
+});
+
+// feedback button
+document.getElementById("feedbackButton").addEventListener("click", () => {
+  window.open(
+    "https://docs.google.com/forms/d/e/1FAIpQLSfQMXLZjtXLTzqoOexaV6OnHHjlQPnXXmLFFBiTu924gQw01g/viewform",
+    "_blank",
+  );
 });
 
 // play again
 document.getElementById("resetButton").addEventListener("click", () => {
-
   emptyDeckStreak = 0;
   // reset players
   playerName = pickRandom(playerNames);
   AI1Name = pickRandom(ai1Names);
   AI2Name = generateAI2Name();
 
-  player = { name: playerName, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
-  AI1 = { name: AI1Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
-  AI2 = { name: AI2Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
+  player = {
+    name: playerName,
+    hand: [],
+    progress: 0,
+    sustainability: 0,
+    actionsPlayed: new Set(),
+    eventsPlayed: new Set(),
+  };
+  AI1 = {
+    name: AI1Name,
+    hand: [],
+    progress: 0,
+    sustainability: 0,
+    actionsPlayed: new Set(),
+    eventsPlayed: new Set(),
+  };
+  AI2 = {
+    name: AI2Name,
+    hand: [],
+    progress: 0,
+    sustainability: 0,
+    actionsPlayed: new Set(),
+    eventsPlayed: new Set(),
+  };
 
   // empty aiLog
   const aiLogDiv = el("aiLog");
@@ -38,7 +66,14 @@ document.getElementById("resetButton").addEventListener("click", () => {
     positionSpecialCards();
     shuffle(deck);
     dealOpeningHands();
-    console.log("[DSG] Dealt hands — player:", player.hand.length, "AI1:", AI1.hand.length, "AI2:", AI2.hand.length);
+    console.log(
+      "[DSG] Dealt hands — player:",
+      player.hand.length,
+      "AI1:",
+      AI1.hand.length,
+      "AI2:",
+      AI2.hand.length,
+    );
     console.log("[DSG] Top of deck after deal:", deck.slice(-3));
   } else {
     console.warn("[DSG] Skipping deal because deck is missing/empty.");
@@ -64,8 +99,7 @@ document.getElementById("resetButton").addEventListener("click", () => {
   const intro = document.getElementById("outro");
   intro.style.opacity = 0;
   intro.style.transition = "opacity 0.4s ease";
-  setTimeout(() => intro.style.display = "none", 400);
-
+  setTimeout(() => (intro.style.display = "none"), 400);
 });
 
 // --- Random name pools ---
@@ -76,7 +110,7 @@ const playerNames = [
   "First City Bank",
   "Baker Baker & McKenzie LLP",
   "The Museum of Lost Socks",
-  "The World Wrestling Consortium"
+  "The World Wrestling Consortium",
 ];
 
 const ai1Names = [
@@ -89,14 +123,16 @@ const ai1Names = [
   "Distributed Fusion Inc",
   "B.Well",
   "Total Cashflow Solutions",
-  "The Data Doulas"
+  "The Data Doulas",
 ];
 
 // --- Helpers ---
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-function el(id) { return document.getElementById(id); }
+function el(id) {
+  return document.getElementById(id);
+}
 
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -107,13 +143,72 @@ function shuffle(array) {
 }
 
 function generateAI2Name() {
-  const buzzwords = ["Synergy", "Quantum", "Hyper", "Total", "Future", "Ultra", "Virtual", "Dynamic", "Cloud", "Carbon", "Crypto", "Green"];
-  const techTerms = ["Solutions", "Systems", "Analytics", "Intelligence", "Optimisation", "Flow", "Interface", "Blockchain", "Fusion", "Comms", "Matrix", "Ops"];
-  const suffixes = ["Inc.", "LLP", "LLC", "Group", "Associates", "Holdings", "Consortium", "Syndicate", "Unlimited", "Worldwide", "Partners"];
-  const wildcard = ["Lozenge", "Entropy", "Biscuit", "Tapioca", "Algo", "Flavour", "Mince", "Pigment", "Pentimento", "Pimento", "Taramasalata", "Hummus", "Sludge", "Algorithm", "Gunk", "Echo", "Vapor", "Goblin"];
+  const buzzwords = [
+    "Synergy",
+    "Quantum",
+    "Hyper",
+    "Total",
+    "Future",
+    "Ultra",
+    "Virtual",
+    "Dynamic",
+    "Cloud",
+    "Carbon",
+    "Crypto",
+    "Green",
+  ];
+  const techTerms = [
+    "Solutions",
+    "Systems",
+    "Analytics",
+    "Intelligence",
+    "Optimisation",
+    "Flow",
+    "Interface",
+    "Blockchain",
+    "Fusion",
+    "Comms",
+    "Matrix",
+    "Ops",
+  ];
+  const suffixes = [
+    "Inc.",
+    "LLP",
+    "LLC",
+    "Group",
+    "Associates",
+    "Holdings",
+    "Consortium",
+    "Syndicate",
+    "Unlimited",
+    "Worldwide",
+    "Partners",
+  ];
+  const wildcard = [
+    "Lozenge",
+    "Entropy",
+    "Biscuit",
+    "Tapioca",
+    "Algo",
+    "Flavour",
+    "Mince",
+    "Pigment",
+    "Pentimento",
+    "Pimento",
+    "Taramasalata",
+    "Hummus",
+    "Sludge",
+    "Algorithm",
+    "Gunk",
+    "Echo",
+    "Vapor",
+    "Goblin",
+  ];
   const p = Math.random();
-  if (p < 0.33) return `${pickRandom(buzzwords)} ${pickRandom(techTerms)} ${pickRandom(suffixes)}`;
-  if (p < 0.66) return `${pickRandom(wildcard)} ${pickRandom(buzzwords)} ${pickRandom(suffixes)}`;
+  if (p < 0.33)
+    return `${pickRandom(buzzwords)} ${pickRandom(techTerms)} ${pickRandom(suffixes)}`;
+  if (p < 0.66)
+    return `${pickRandom(wildcard)} ${pickRandom(buzzwords)} ${pickRandom(suffixes)}`;
   return `${pickRandom(buzzwords)} ${pickRandom(wildcard)} ${pickRandom(techTerms)} ${pickRandom(suffixes)}`;
 }
 
@@ -122,28 +217,49 @@ let playerName = pickRandom(playerNames);
 let AI1Name = pickRandom(ai1Names);
 let AI2Name = generateAI2Name();
 
-let player = { name: playerName, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
-let AI1 = { name: AI1Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
-let AI2 = { name: AI2Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
+let player = {
+  name: playerName,
+  hand: [],
+  progress: 0,
+  sustainability: 0,
+  actionsPlayed: new Set(),
+  eventsPlayed: new Set(),
+};
+let AI1 = {
+  name: AI1Name,
+  hand: [],
+  progress: 0,
+  sustainability: 0,
+  actionsPlayed: new Set(),
+  eventsPlayed: new Set(),
+};
+let AI2 = {
+  name: AI2Name,
+  hand: [],
+  progress: 0,
+  sustainability: 0,
+  actionsPlayed: new Set(),
+  eventsPlayed: new Set(),
+};
 
 // Keep card metadata even after deck mutations
 let CARD_BY_ID = {};
 function initCardLookup() {
   if (!Array.isArray(window.deck)) return;
   const snapshot = deck.slice();
-  CARD_BY_ID = Object.fromEntries(snapshot.map(c => [c.id, c]));
+  CARD_BY_ID = Object.fromEntries(snapshot.map((c) => [c.id, c]));
 }
 
 function positionSpecialCards() {
   if (!Array.isArray(window.deck)) return;
 
-  const i32 = deck.findIndex(card => card.id === 32);
+  const i32 = deck.findIndex((card) => card.id === 32);
   if (i32 !== -1) {
     const card32 = deck.splice(i32, 1)[0];
     deck.splice(19, 0, card32);
   }
 
-  const i1 = deck.findIndex(card => card.id === 1);
+  const i1 = deck.findIndex((card) => card.id === 1);
   if (i1 !== -1) {
     const card1 = deck.splice(i1, 1)[0];
     const r = 2 + Math.floor(Math.random() * 3); // 2..4
@@ -195,7 +311,7 @@ function renderPlayerHand() {
     // --- Card name ---
     const header = document.createElement("h4");
     header.className = "card-name";
-    header.textContent = card.name.replace(/^\d+:\s*/, '');
+    header.textContent = card.name.replace(/^\d+:\s*/, "");
     cardDiv.appendChild(header);
 
     // --- Card description ---
@@ -247,23 +363,123 @@ function renderCards(idArray) {
   return idArray.length === 0
     ? "None"
     : idArray
-      .map(id => {
-        const card = CARD_BY_ID[id];
-        const cardName = card ? card.name : "Unknown Card";
-        return `<span title="${cardName}">${id}</span>`;
-      })
-      .join(", ");
+        .map((id) => {
+          const card = CARD_BY_ID[id];
+          const cardName = card ? card.name : "Unknown Card";
+          return `<span title="${cardName}">${id}</span>`;
+        })
+        .join(", ");
 }
 
-function setHTMLById(id, html) { const node = el(id); if (node) node.innerHTML = html; }
+function setHTMLById(id, html) {
+  const node = el(id);
+  if (node) node.innerHTML = html;
+}
 
 function updatePlayedLists() {
-  setHTMLById("yourActionsPlayed", renderCards([...player.actionsPlayed].sort((a, b) => a - b)));
-  setHTMLById("yourEventsPlayed", renderCards([...player.eventsPlayed].sort((a, b) => a - b)));
-  setHTMLById("ai1ActionsPlayed", renderCards([...AI1.actionsPlayed].sort((a, b) => a - b)));
-  setHTMLById("ai1EventsPlayed", renderCards([...AI1.eventsPlayed].sort((a, b) => a - b)));
-  setHTMLById("ai2ActionsPlayed", renderCards([...AI2.actionsPlayed].sort((a, b) => a - b)));
-  setHTMLById("ai2EventsPlayed", renderCards([...AI2.eventsPlayed].sort((a, b) => a - b)));
+  setHTMLById(
+    "yourActionsPlayed",
+    renderCards([...player.actionsPlayed].sort((a, b) => a - b)),
+  );
+  setHTMLById(
+    "yourEventsPlayed",
+    renderCards([...player.eventsPlayed].sort((a, b) => a - b)),
+  );
+  setHTMLById(
+    "ai1ActionsPlayed",
+    renderCards([...AI1.actionsPlayed].sort((a, b) => a - b)),
+  );
+  setHTMLById(
+    "ai1EventsPlayed",
+    renderCards([...AI1.eventsPlayed].sort((a, b) => a - b)),
+  );
+  setHTMLById(
+    "ai2ActionsPlayed",
+    renderCards([...AI2.actionsPlayed].sort((a, b) => a - b)),
+  );
+  setHTMLById(
+    "ai2EventsPlayed",
+    renderCards([...AI2.eventsPlayed].sort((a, b) => a - b)),
+  );
+}
+
+// --- Outro message generation ---
+function generateOutroMessage(P, A1, A2) {
+  const scores = [
+    { who: "player", value: P.sustainability },
+    { who: "ai1", value: A1.sustainability },
+    { who: "ai2", value: A2.sustainability },
+  ];
+
+  const total = scores.reduce((sum, s) => sum + (Number.isFinite(s.value) ? s.value : 0), 0);
+
+  const pScore = scores[0].value;
+  const values = scores.map((s) => s.value);
+  const max = Math.max(...values);
+  const uniqueSorted = [...new Set(values)].sort((a, b) => b - a);
+  const countAt = (v) => values.filter((x) => x === v).length;
+
+  let rankKey = "third";
+  if (pScore === max) {
+    rankKey = countAt(max) >= 2 ? "first_tie" : "first";
+  } else if (uniqueSorted.length > 1 && pScore === uniqueSorted[1]) {
+    rankKey = countAt(uniqueSorted[1]) >= 2 ? "second_tie" : "second";
+  } else {
+    rankKey = "third";
+  }
+
+  let placeText = "";
+  switch (rankKey) {
+    case "first":
+      placeText = "1st place";
+      break;
+    case "first_tie":
+      placeText = "tied for 1st place";
+      break;
+    case "second":
+      placeText = "2nd place";
+      break;
+    case "second_tie":
+      placeText = "tied for 2nd place";
+      break;
+    default:
+      placeText = "3rd place";
+  }
+
+  let personalMsg = "";
+  switch (rankKey) {
+    case "first":
+      personalMsg = "Digital sustainability is a shared challenge. You’ve done better than any of your competitors. Congratulations, you have shown leadership!";
+      break;
+    case "first_tie":
+      personalMsg = "You’re tied for first place! Congratulations, you’ve shown leadership in digital sustainability. Digital sustainability is a shared challenge.";
+      break;
+    case "second":
+    case "second_tie":
+      personalMsg = "Digital sustainability is a shared challenge. You’re somewhere in the middle of the pack, neither leading the way nor lagging behind.";
+      break;
+    case "third":
+    default:
+      personalMsg = "You ended the game with some of the worst digital sustainability in the sector! Digital sustainability is a shared challenge.";
+      break;
+  }
+
+  let globalMsg = "";
+  if (total <= 25) {
+    globalMsg = "As for the global picture? Oh no! The world really is in flames! Tech has a lot to answer for. Now what? Revenge?";
+  } else if (total <= 30) {
+    globalMsg = "Of course, it’s not just about you. Efficiencies have come too slowly, and the growth has outpaced the gains. The social and ecological cost of delay has been enormous.";
+  } else if (total <= 35) {
+    globalMsg = "Globally, we have a firm foundation, and the future is now looking very bright!";
+  } else if (total <= 40) {
+    globalMsg = "Globally, we did it! We achieved a rapid and just climate transition. Tech can be proud of the part that it played.";
+  } else {
+    globalMsg = "Incredible! Radical, deep change has been achieved. Tech is much more green, democratic, and convivial. You must have been smart AND lucky!";
+  }
+
+  const personalSection = `<p><strong>Your result (${placeText}):</strong> ${personalMsg}</p>`;
+  const globalSection = `<p><strong>Global picture:</strong> ${globalMsg} Total sustainability points: ${total}.</p>`;
+  return `${personalSection}${globalSection}`;
 }
 
 // --- Turn logic with error guards ---
@@ -281,12 +497,12 @@ function safeEffectInvoke(card, P, A1, A2) {
 
 function playAI1Card() {
   let card = null;
-  let index = AI1.hand.findIndex(c => c.type === "action");
+  let index = AI1.hand.findIndex((c) => c.type === "action");
   if (index !== -1) {
     card = AI1.hand.splice(index, 1)[0];
     AI1.actionsPlayed.add(card.id);
   } else {
-    index = AI1.hand.findIndex(c => c.type === "event");
+    index = AI1.hand.findIndex((c) => c.type === "event");
     if (index !== -1) {
       card = AI1.hand.splice(index, 1)[0];
       AI1.eventsPlayed.add(card.id);
@@ -301,12 +517,12 @@ function playAI1Card() {
 
 function playAI2Card() {
   let card = null;
-  let index = AI2.hand.findIndex(c => c.type === "action");
+  let index = AI2.hand.findIndex((c) => c.type === "action");
   if (index !== -1) {
     card = AI2.hand.splice(index, 1)[0];
     AI2.actionsPlayed.add(card.id);
   } else {
-    index = AI2.hand.findIndex(c => c.type === "event");
+    index = AI2.hand.findIndex((c) => c.type === "event");
     if (index !== -1) {
       card = AI2.hand.splice(index, 1)[0];
       AI2.eventsPlayed.add(card.id);
@@ -345,11 +561,15 @@ function playPlayerCard(index) {
       emptyDeckStreak++;
 
       if (emptyDeckStreak === 4) {
+
+        console.log(player.sustainability, player.progress);
+
         const outro = document.getElementById("outro");
         outro.style.opacity = 1;
         outro.style.display = "flex";
         const outroContent = document.querySelector(".outro-text");
-        outroContent.innerHTML = `<p>Hovno</p>`;
+        const message = generateOutroMessage(player, AI1, AI2);
+        outroContent.innerHTML = message;
       }
     }
   }
@@ -360,10 +580,19 @@ function playPlayerCard(index) {
 // --- Bootstrapping with diagnostics ---
 window.onload = () => {
   console.log("[DSG] Boot start");
-  console.log("[DSG] deck present?", typeof window.deck, "isArray?", Array.isArray(window.deck), "length:", window.deck && window.deck.length);
+  console.log(
+    "[DSG] deck present?",
+    typeof window.deck,
+    "isArray?",
+    Array.isArray(window.deck),
+    "length:",
+    window.deck && window.deck.length,
+  );
 
   if (!Array.isArray(window.deck)) {
-    console.error("[DSG] deck.js did not define window.deck as an array. In deck.js use: window.deck = [ /* cards */ ];");
+    console.error(
+      "[DSG] deck.js did not define window.deck as an array. In deck.js use: window.deck = [ /* cards */ ];",
+    );
   } else if (window.deck.length === 0) {
     console.error("[DSG] deck is an empty array. Add cards to deck.js.");
   } else {
@@ -375,7 +604,14 @@ window.onload = () => {
     positionSpecialCards();
     shuffle(deck);
     dealOpeningHands();
-    console.log("[DSG] Dealt hands — player:", player.hand.length, "AI1:", AI1.hand.length, "AI2:", AI2.hand.length);
+    console.log(
+      "[DSG] Dealt hands — player:",
+      player.hand.length,
+      "AI1:",
+      AI1.hand.length,
+      "AI2:",
+      AI2.hand.length,
+    );
     console.log("[DSG] Top of deck after deal:", deck.slice(-3));
   } else {
     console.warn("[DSG] Skipping deal because deck is missing/empty.");
@@ -398,4 +634,3 @@ window.onload = () => {
 
   console.log("[DSG] Boot end");
 };
-
