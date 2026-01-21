@@ -2,11 +2,70 @@
 // script.js — diagnostics + robust rendering
 // ===========================================
 
+window.resetDeck = function () {
+  window.deck = window.__DECK_SNAPSHOT__.map(card => ({ ...card }));
+};
+
+// close intre screen
 document.getElementById("closeIntro").addEventListener("click", () => {
   const intro = document.getElementById("intro");
   intro.style.opacity = 0;
   intro.style.transition = "opacity 0.4s ease";
   setTimeout(() => intro.style.display = "none", 400);
+});
+
+// play again
+document.getElementById("resetButton").addEventListener("click", () => {
+
+  emptyDeckStreak = 0;
+  // reset players
+  playerName = pickRandom(playerNames);
+  AI1Name = pickRandom(ai1Names);
+  AI2Name = generateAI2Name();
+
+  player = { name: playerName, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
+  AI1 = { name: AI1Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
+  AI2 = { name: AI2Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
+
+  // empty aiLog
+  const aiLogDiv = el("aiLog");
+  aiLogDiv.innerHTML = "";
+
+  //reset deck
+  window.resetDeck();
+  if (Array.isArray(window.deck) && window.deck.length > 0) {
+    initCardLookup();
+    positionSpecialCards();
+    shuffle(deck);
+    dealOpeningHands();
+    console.log("[DSG] Dealt hands — player:", player.hand.length, "AI1:", AI1.hand.length, "AI2:", AI2.hand.length);
+    console.log("[DSG] Top of deck after deal:", deck.slice(-3));
+  } else {
+    console.warn("[DSG] Skipping deal because deck is missing/empty.");
+  }
+
+  renderPlayerHand();
+  updateGameInfo();
+  updatePlayedLists();
+
+  // Set AI labels (matches YOUR HTML IDs). Falls back to alternative IDs if present.
+  const a1Header = el("ai1ActionsHeader") || el("ai1ActionsLabel");
+  const a1EHeader = el("ai1EventsHeader") || el("ai1EventsLabel");
+  const a2Header = el("ai2ActionsHeader") || el("ai2ActionsLabel");
+  const a2EHeader = el("ai2EventsHeader") || el("ai2EventsLabel");
+
+  if (a1Header) a1Header.textContent = `${AI1.name} Actions Played`;
+  if (a1EHeader) a1EHeader.textContent = `${AI1.name} Events Played`;
+  if (a2Header) a2Header.textContent = `${AI2.name} Actions Played`;
+  if (a2EHeader) a2EHeader.textContent = `${AI2.name} Events Played`;
+
+  console.log("[DSG] Boot end");
+
+  const intro = document.getElementById("outro");
+  intro.style.opacity = 0;
+  intro.style.transition = "opacity 0.4s ease";
+  setTimeout(() => intro.style.display = "none", 400);
+
 });
 
 // --- Random name pools ---
@@ -59,9 +118,9 @@ function generateAI2Name() {
 }
 
 // --- Players ---
-const playerName = pickRandom(playerNames);
-const AI1Name = pickRandom(ai1Names);
-const AI2Name = generateAI2Name();
+let playerName = pickRandom(playerNames);
+let AI1Name = pickRandom(ai1Names);
+let AI2Name = generateAI2Name();
 
 let player = { name: playerName, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
 let AI1 = { name: AI1Name, hand: [], progress: 0, sustainability: 0, actionsPlayed: new Set(), eventsPlayed: new Set() };
@@ -149,12 +208,7 @@ function renderPlayerHand() {
     cardDiv.addEventListener("click", () => playPlayerCard(index));
     handDiv.appendChild(cardDiv);
   });
-
-
-
-
 }
-
 
 function logAIPlay(aiName, card) {
   const aiLogDiv = el("aiLog");
@@ -170,25 +224,22 @@ function logAIPlay(aiName, card) {
   entry.scrollIntoView({ behavior: "smooth", block: "end" });
 }
 
-
 function updateGameInfo() {
   const infoDiv = el("gameInfo");
+
   if (!infoDiv) return;
   infoDiv.innerHTML = `
     <strong>${player.name}</strong><br>
     Progress: ${player.progress},<br> Sustainability: ${player.sustainability}<br>
-    Actions: ${renderCards([...player.actionsPlayed].sort((a, b) => a - b))}<br>
-    Events: ${renderCards([...player.eventsPlayed].sort((a, b) => a - b))}<br><br>
+    Actions: ${renderCards([...player.actionsPlayed].sort((a, b) => a - b))}<br></br>
 
     <strong>${AI1.name}</strong><br>
     Progress: ${AI1.progress},<br> Sustainability: ${AI1.sustainability}<br>
-    Actions: ${renderCards([...AI1.actionsPlayed].sort((a, b) => a - b))}<br>
-    Events: ${renderCards([...AI1.eventsPlayed].sort((a, b) => a - b))}<br><br>
+    Actions: ${renderCards([...AI1.actionsPlayed].sort((a, b) => a - b))}<br><br>
 
     <strong>${AI2.name}</strong><br>
     Progress: ${AI2.progress},<br> Sustainability: ${AI2.sustainability}<br>
     Actions: ${renderCards([...AI2.actionsPlayed].sort((a, b) => a - b))}<br>
-    Events: ${renderCards([...AI2.eventsPlayed].sort((a, b) => a - b))}<br>
   `;
 }
 
@@ -268,6 +319,7 @@ function playAI2Card() {
   if (Array.isArray(window.deck) && deck.length) AI2.hand.push(deck.pop());
 }
 
+let emptyDeckStreak = 0;
 function playPlayerCard(index) {
   const chosenCard = player.hand.splice(index, 1)[0];
   if (!chosenCard) return;
@@ -286,6 +338,23 @@ function playPlayerCard(index) {
   renderPlayerHand();
   updateGameInfo();
   updatePlayedLists();
+
+  // check for empty deck and show game results
+  function checkDeck() {
+    if (window.deck.length === 0) {
+      emptyDeckStreak++;
+
+      if (emptyDeckStreak === 4) {
+        const outro = document.getElementById("outro");
+        outro.style.opacity = 1;
+        outro.style.display = "flex";
+        const outroContent = document.querySelector(".outro-text");
+        outroContent.innerHTML = `<p>Hovno</p>`;
+      }
+    }
+  }
+
+  checkDeck();
 }
 
 // --- Bootstrapping with diagnostics ---
