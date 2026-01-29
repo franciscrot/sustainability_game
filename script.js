@@ -256,7 +256,9 @@ let highlightedActionIds = new Set();
 // Pull action IDs (1-30) out of an event's text description.
 function getActionIdsFromEvent(card) {
   if (!card || card.type !== "event") return [];
-  const sourceText = String(card.description || "");
+  const sourceText = [card.name, card.description, card.tooltip]
+    .filter(Boolean)
+    .join(" ");
   const matches = sourceText.match(/\b([1-9]|[12]\d|30)\b/g) || [];
   return [...new Set(matches.map((value) => Number(value)))];
 }
@@ -395,11 +397,14 @@ function renderCards(idArray, highlightIds = new Set()) {
   return idArray.length === 0
     ? "None"
     : idArray
-        .map((id) => {
+        .map((rawId) => {
+          const id = Number(rawId);
           const card = CARD_BY_ID[id];
           const cardName = card ? card.name : "Unknown Card";
           const isHighlighted = highlightIds.has(id);
-          const label = isHighlighted ? `<strong>${id}</strong>` : `${id}`;
+          const label = isHighlighted
+            ? `<span class="highlighted-action">${id}</span>`
+            : `${id}`;
           return `<span title="${cardName}">${label}</span>`;
         })
         .join(", ");
