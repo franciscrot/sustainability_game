@@ -250,6 +250,28 @@ function initCardLookup() {
   CARD_BY_ID = Object.fromEntries(snapshot.map((c) => [c.id, c]));
 }
 
+// Track which action IDs should be highlighted while hovering an event card.
+let highlightedActionIds = new Set();
+
+// Pull action IDs (1-30) out of an event's text description.
+function getActionIdsFromEvent(card) {
+  if (!card || card.type !== "event") return [];
+  const sourceText = String(card.description || "");
+  const matches = sourceText.match(/\b([1-9]|[12]\d|30)\b/g) || [];
+  return [...new Set(matches.map((value) => Number(value)))];
+}
+
+// Update UI to bold action IDs that are relevant to the hovered event card.
+function setHighlightedActions(actionIds) {
+  highlightedActionIds = new Set(actionIds);
+  updateGameInfo();
+  updatePlayedLists();
+}
+
+function clearHighlightedActions() {
+  setHighlightedActions([]);
+}
+
 function positionSpecialCards() {
   if (!Array.isArray(window.deck)) return;
 
@@ -281,6 +303,7 @@ function renderPlayerHand() {
   const handDiv = el("playerHand");
   if (!handDiv) return;
   handDiv.innerHTML = "";
+  clearHighlightedActions();
 
   const descriptionDiv = el("descriptionBox");
   const cardTitle = el("cardTitle");
@@ -322,6 +345,15 @@ function renderPlayerHand() {
 
     // Click handler
     cardDiv.addEventListener("click", () => playPlayerCard(index));
+    // Hover handlers: highlight relevant action IDs for event cards.
+    if (card.type === "event") {
+      cardDiv.addEventListener("mouseenter", () => {
+        setHighlightedActions(getActionIdsFromEvent(card));
+      });
+      cardDiv.addEventListener("mouseleave", () => {
+        clearHighlightedActions();
+      });
+    }
     handDiv.appendChild(cardDiv);
   });
 }
@@ -347,26 +379,28 @@ function updateGameInfo() {
   infoDiv.innerHTML = `
     <strong>${player.name}</strong><br>
     Progress: ${player.progress},<br> Sustainability: ${player.sustainability}<br>
-    Actions: ${renderCards([...player.actionsPlayed].sort((a, b) => a - b))}<br></br>
+    Actions: ${renderCards([...player.actionsPlayed].sort((a, b) => a - b), highlightedActionIds)}<br></br>
 
     <strong>${AI1.name}</strong><br>
     Progress: ${AI1.progress},<br> Sustainability: ${AI1.sustainability}<br>
-    Actions: ${renderCards([...AI1.actionsPlayed].sort((a, b) => a - b))}<br><br>
+    Actions: ${renderCards([...AI1.actionsPlayed].sort((a, b) => a - b), highlightedActionIds)}<br><br>
 
     <strong>${AI2.name}</strong><br>
     Progress: ${AI2.progress},<br> Sustainability: ${AI2.sustainability}<br>
-    Actions: ${renderCards([...AI2.actionsPlayed].sort((a, b) => a - b))}<br>
+    Actions: ${renderCards([...AI2.actionsPlayed].sort((a, b) => a - b), highlightedActionIds)}<br>
   `;
 }
 
-function renderCards(idArray) {
+function renderCards(idArray, highlightIds = new Set()) {
   return idArray.length === 0
     ? "None"
     : idArray
         .map((id) => {
           const card = CARD_BY_ID[id];
           const cardName = card ? card.name : "Unknown Card";
-          return `<span title="${cardName}">${id}</span>`;
+          const isHighlighted = highlightIds.has(id);
+          const label = isHighlighted ? `<strong>${id}</strong>` : `${id}`;
+          return `<span title="${cardName}">${label}</span>`;
         })
         .join(", ");
 }
@@ -379,7 +413,7 @@ function setHTMLById(id, html) {
 function updatePlayedLists() {
   setHTMLById(
     "yourActionsPlayed",
-    renderCards([...player.actionsPlayed].sort((a, b) => a - b)),
+    renderCards([...player.actionsPlayed].sort((a, b) => a - b), highlightedActionIds),
   );
   setHTMLById(
     "yourEventsPlayed",
@@ -387,7 +421,7 @@ function updatePlayedLists() {
   );
   setHTMLById(
     "ai1ActionsPlayed",
-    renderCards([...AI1.actionsPlayed].sort((a, b) => a - b)),
+    renderCards([...AI1.actionsPlayed].sort((a, b) => a - b), highlightedActionIds),
   );
   setHTMLById(
     "ai1EventsPlayed",
@@ -395,7 +429,7 @@ function updatePlayedLists() {
   );
   setHTMLById(
     "ai2ActionsPlayed",
-    renderCards([...AI2.actionsPlayed].sort((a, b) => a - b)),
+    renderCards([...AI2.actionsPlayed].sort((a, b) => a - b), highlightedActionIds),
   );
   setHTMLById(
     "ai2EventsPlayed",
